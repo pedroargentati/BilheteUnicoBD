@@ -91,7 +91,7 @@ public class FormAdmin {
 			if (cpfConsulado != null) {
 				showMessageDialog(null, cpfConsulado);
 			} else {
-				showMessageDialog(null, "O CPF " + cpf + " nãoo foi encontrado em nossa base de dados.");
+				showMessageDialog(null, "O CPF " + cpf + " não foi encontrado em nossa base de dados.");
 			}
 
 		} catch (NumberFormatException e) {
@@ -108,7 +108,6 @@ public class FormAdmin {
 		
 		return numero;
 	}
-	
 	
  	private String gerarMenuAdmin() {
 		String menu = "Escolha uma operação:\n";

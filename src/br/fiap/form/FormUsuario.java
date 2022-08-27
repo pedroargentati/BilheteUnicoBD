@@ -104,10 +104,10 @@ public class FormUsuario {
 		BilheteUnico bilheteAtu = bDAO.obterBilhetePorCPF(cpf);
 		
 		if(bilheteAtu != null) 
-			showMessageDialog(null, "Seu saldo é de : R$" + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));
+			showMessageDialog(null, "Seu saldo é de : " + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));
 		
 	}
-	
+
 	private String gerarMenuUsuario() {
 		String menu = "Escolha uma operação:\n";
 		menu += "1. Carregar Bilhete\n";
