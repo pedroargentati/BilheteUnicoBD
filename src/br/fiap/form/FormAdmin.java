@@ -11,6 +11,7 @@ import java.util.Random;
 import br.fiap.dao.BilheteDAO;
 import br.fiap.dao.UsuarioDAO;
 import br.fiap.modelo.BilheteUnico;
+import br.fiap.modelo.Usuario;
 
 public class FormAdmin {
 	
@@ -33,14 +34,20 @@ public class FormAdmin {
 				case 3:
 					this.consularBilhete();
 					break;
+				case 4:
+					this.alterarNomeUsuario();
+					break;
+				case 5:
+					this.excluirUsuario();
+					break;
 				default:
 					break;
 				}
 
 			} catch (NumberFormatException e) {
-				showMessageDialog(null, "A opção deve ser um número entre 1 e 4\n" + e);
+				showMessageDialog(null, "A opção deve ser um número entre 1 e 5\n" + e);
 			}
-		} while (opcao != 4);
+		} while (opcao != 6);
 
 	}
 
@@ -84,12 +91,14 @@ public class FormAdmin {
 		
 		try {
 			BilheteDAO bilheteDao = new BilheteDAO();
+			UsuarioDAO usuDAO = new UsuarioDAO();
 			String cpf = showInputDialog("Informe o CPF que deseja consultar: ");
 
 			BilheteUnico cpfConsulado = bilheteDao.obterBilhetePorCPF(cpf);
-
-			if (cpfConsulado != null) {
-				showMessageDialog(null, cpfConsulado);
+			Usuario usu = usuDAO.obterUsuarioPorCPF(cpf);
+			
+			if (cpfConsulado != null && usu != null) {
+				showMessageDialog(null, "Nome: " + usu.getNome() + "\n" + cpfConsulado );
 			} else {
 				showMessageDialog(null, "O CPF " + cpf + " não foi encontrado em nossa base de dados.");
 			}
@@ -97,8 +106,53 @@ public class FormAdmin {
 		} catch (NumberFormatException e) {
 			showMessageDialog(null, "A opção deve ser um número entre 1 e 4\n" + e);
 		}
-
 	}
+
+	public void alterarNomeUsuario() {
+		UsuarioDAO uDAO = new UsuarioDAO();
+		String cpf = showInputDialog("Informe o CPF do usuário que deseja alterar o nome: ");
+		Usuario usuPesquisa = uDAO.obterUsuarioPorCPF(cpf);
+		
+		if(uDAO.obterUsuarioPorCPF(cpf).getCpf() != null) {
+			String novoNome = showInputDialog("Informe o novo nome que deseja inserir: ");
+			uDAO.atualizarNomeUsuario(cpf, novoNome);
+			showMessageDialog(null, "Nome atualizado com sucesso!\nNome antigo: " + usuPesquisa.getNome() + "\nNome novo: " + novoNome);
+		} else {
+			showMessageDialog(null, "Usuário com o CPF " + cpf + " não econtrado em nossa base de dados.");
+		}
+	}
+	
+	public void excluirUsuario() {
+		UsuarioDAO usuDAO = new UsuarioDAO();
+		Usuario usuarioPesquisa = null;
+		
+		String cpf = showInputDialog("Informe o CPF do usuário que deseja excluir: ");
+		if (cpf != null && cpf.trim() != "") {
+			usuarioPesquisa = usuDAO.obterUsuarioPorCPF(cpf);
+		} else {
+			showMessageDialog(null, "Insira um CPF válido para pesquisa.");
+		}
+			
+
+		if (usuarioPesquisa != null) {
+			String confirmacao = showInputDialog("Você tem certeza que deseja excluir o usuário " + usuarioPesquisa.getNome() + " ? (S/N)");
+			if (confirmacao != null && confirmacao.trim() != "") {
+				if (confirmacao.equalsIgnoreCase("S")) {
+					usuDAO.excluirUsuarioPorCpf(cpf);
+					showMessageDialog(null, "Usuário '" + usuarioPesquisa.getNome() + "' excluído com sucesso.");
+				} else {
+					showMessageDialog(null, "Tudo bem. Voltando ao menu principal.");
+				}
+			} else {
+				showMessageDialog(null, "Insira um valor válido para pesquisa.");
+			}
+		} else {
+			showMessageDialog(null, "Usuário com o CPF " + cpf + " não econtrado em nossa base de dados.");
+
+		}
+	}
+	
+	
 	
 	public double gerarNumeroAleatorio( ) {
 		double numero = 0;
@@ -114,7 +168,9 @@ public class FormAdmin {
 		menu += "1. Emitir Bilhete\n";
 		menu += "2. Imprimir Bilhete\n";
 		menu += "3. Consultar Bilhete\n";
-		menu += "4. Sair";
+		menu += "4. Alterar nome de Usuário\n";
+		menu += "5. Excluir Usuário\n";
+		menu += "6. Sair";
 		return menu;
 
 	}

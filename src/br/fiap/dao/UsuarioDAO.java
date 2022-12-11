@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import br.fiap.conexao.Conexao;
-import br.fiap.modelo.BilheteUnico;
 import br.fiap.modelo.Usuario;
 
 public class UsuarioDAO {
@@ -51,6 +50,36 @@ public class UsuarioDAO {
 		}
 	}
 
+	public void atualizarNomeUsuario(String cpf, String nome) {
+		try {
+			System.out.println("iniciando método atualizarUsuario.");
+			Connection connection;
+			PreparedStatement preparedStatement = null;
+
+			connection = conexao.conectar();
+			StringBuffer sql = new StringBuffer();
+
+			try {
+				sql.append(	"UPDATE ");
+				sql.append(		"JAVA_USUARIO ");
+				sql.append(	"SET ");
+				sql.append(		"NOME = ? ");
+				sql.append(	"WHERE ");
+				sql.append( 	"CPF = ?");
+
+				preparedStatement = connection.prepareStatement(sql.toString());
+				preparedStatement.setString(1, nome);
+				preparedStatement.setString(2, cpf);
+				preparedStatement.execute();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} finally {
+			System.out.println("finalizando método atualizarUsuario.");
+		}
+	}
+	
 	public void inserirUsuario(String nome, String cpf, String tipo)  {
 		try {
 
@@ -122,6 +151,64 @@ public class UsuarioDAO {
 			return result;
 		} finally {
 			System.out.println("Finalizando método obterBilhetePorCPF.");
+		}
+	}
+	
+	
+	public void excluirUsuarioPorCpf(String cpf) {
+		try {
+			System.out.println("iniciando método excluirUsuarioPorCpf(cpf).");
+			Connection connection;
+			PreparedStatement preparedStatement = null;
+
+			connection = conexao.conectar();
+			StringBuffer sql = new StringBuffer();
+
+			try {
+				sql.append(	"DELETE FROM ");
+				sql.append(		"JAVA_USUARIO ");
+				sql.append(	"WHERE ");
+				sql.append(		"CPF = ? ");
+
+				preparedStatement = connection.prepareStatement(sql.toString());
+				preparedStatement.setString(1, cpf);
+				preparedStatement.execute();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} finally {
+			System.out.println("finalizando método excluirUsuarioPorCpf(cpf).");
+		}
+	}
+	
+	public void atualizarTipoBilhete(String cpf, String tipo) {
+		try {
+
+			Connection connection;
+			PreparedStatement preparedStatement = null;
+
+			connection = conexao.conectar();
+			StringBuffer sql = new StringBuffer();
+
+			try {
+				sql.append(	"UPDATE ");
+				sql.append(		"JAVA_USUARIO ");
+				sql.append(	"SET ");
+				sql.append(		"TIPO = ? ");
+				sql.append(	"WHERE ");
+				sql.append( 	"CPF = ?");
+
+				preparedStatement = connection.prepareStatement(sql.toString());
+				preparedStatement.setString(1, tipo);
+				preparedStatement.setString(2, cpf);
+				preparedStatement.execute();
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} finally {
+			System.out.println("Finalizando método atualizarBilhete.");
 		}
 	}
 	

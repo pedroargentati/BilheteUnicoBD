@@ -3,8 +3,8 @@ package br.fiap.modelo;
 public enum TipoUsuario {
 	
 	ESTUDANTE(2.20, "Estudante"),
-	PROFESSOR (2.10, "Professor"),
-	NORMAL(4.40, "Normal");
+	PROFESSOR(2.10, "Professor"),
+	NORMAL	 (4.40, "Normal");
 
 	private double valorPassagem;
 	private String tipo;

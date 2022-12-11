@@ -1,11 +1,9 @@
 package br.fiap.form;
-import static javax.swing.JOptionPane.*;
+import static javax.swing.JOptionPane.showInputDialog;
 
 import java.sql.SQLException;
 
 import br.fiap.dao.UsuarioDAO;
-
-import static java.lang.Integer.parseInt;
 
 public class FormPrincipal {
 
