@@ -11,6 +11,8 @@ public class SolAltBil {
 	private String 	cpf;
 	private Integer anoMes_solicitacao;
 	private String 	tipo_bilhete_alteracao;
+	private String 	status;
+	private Integer data_aprovaca;
 
 	public Integer getId_solicitacao() {
 		return id_solicitacao;
@@ -42,6 +44,31 @@ public class SolAltBil {
 
 	public void setTipo_bilhete_alteracao(String tipo_bilhete_alteracao) {
 		this.tipo_bilhete_alteracao = tipo_bilhete_alteracao;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Integer getData_aprovaca() {
+		return data_aprovaca;
+	}
+
+	public void setData_aprovaca(Integer data_aprovaca) {
+		this.data_aprovaca = data_aprovaca;
+	}
+
+	@Override
+	public String toString() {
+		String str = 	"\nID Soliticação: " 				+ id_solicitacao 	 + 
+						"\nCPF: " 							+ cpf 				 + 
+						"\nAno/Mês solicitação: " 			+ anoMes_solicitacao + 
+						"\nTipo de Bilhete solicitado: " 	+ tipo_bilhete_alteracao;
+		return str;
 	}
 
 }

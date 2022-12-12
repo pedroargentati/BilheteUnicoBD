@@ -137,7 +137,7 @@ public class SolAltBilDAO {
 	}
 	
 	
-	public void efetivarSolAltBil(String cpf, String idSolicitacao) {
+	public void efetivarSolAltBil(String cpf, String status, Integer data_aprovacao) {
 		try {
 			System.out.println("iniciando método efetivarSolAltBil(cpf, idSolicitacao).");
 			Connection connection;
@@ -147,15 +147,18 @@ public class SolAltBilDAO {
 			StringBuffer sql = new StringBuffer();
 
 			try {
-				sql.append(	"DELETE FROM ");
+				sql.append(	"UPDATE ");
 				sql.append(		"JAVA_SOLALTBIL ");
+				sql.append(	"SET ");
+				sql.append(		"STATUS = ?, ");
+				sql.append(		"DATA_APROVACAO = ? ");
 				sql.append(	"WHERE ");
 				sql.append(		"CPF = ? ");
-				sql.append(		"AND ID_SOLICITACAO = ? ");
 
 				preparedStatement = connection.prepareStatement(sql.toString());
-				preparedStatement.setString(1, cpf);
-				preparedStatement.setString(2, idSolicitacao);
+				preparedStatement.setString	(1, status);
+				preparedStatement.setInt	(2, data_aprovacao);
+				preparedStatement.setString	(3, cpf);
 				preparedStatement.execute();
 
 			} catch (SQLException e) {
