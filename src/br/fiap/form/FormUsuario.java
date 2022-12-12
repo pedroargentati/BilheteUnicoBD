@@ -5,6 +5,7 @@ import static java.lang.Integer.parseInt;
 import static javax.swing.JOptionPane.showInputDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -169,7 +170,19 @@ public class FormUsuario {
 					LocalDateTime dataSolicitacao = LocalDateTime.now();
 					DateTimeFormatter formatDateSol = DateTimeFormatter.ofPattern("MMyyyy");
 
-					solicitacaoAlteracao.setId_solicitacao(3);
+					Integer solAltBilMaxSeq = null;
+					try {
+						solAltBilMaxSeq = solAltBilDAO.obterMaxSeqSolAltBil();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					
+					if (solAltBilMaxSeq != null && solAltBilMaxSeq > 0) {
+						solicitacaoAlteracao.setId_solicitacao(++solAltBilMaxSeq);
+					} else { 
+						solicitacaoAlteracao.setId_solicitacao(0);
+					}
+					
 					solicitacaoAlteracao.setCpf(cpf);
 					solicitacaoAlteracao.setAnoMes_solicitacao(Integer.valueOf(dataSolicitacao.format(formatDateSol)));
 					solicitacaoAlteracao.setTipo_bilhete_alteracao(tipo);

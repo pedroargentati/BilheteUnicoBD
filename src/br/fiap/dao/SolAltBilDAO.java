@@ -166,4 +166,41 @@ public class SolAltBilDAO {
 		}
 	}
 	
+	public Integer obterMaxSeqSolAltBil() throws SQLException {
+		try {
+			System.out.println("iniciando metodo: obterMaxSeqSolAltBil().");
+
+			Connection connection = null;
+			PreparedStatement preparedStatement = null;
+			ResultSet resultSet = null;
+			Integer result = null;
+			
+			connection = conexao.conectar();
+
+			try {
+				
+				StringBuffer sql = new StringBuffer();
+
+				sql.append("SELECT ");
+				sql.append(		"MAX(ID_SOLICITACAO) AS MAXSEQ ");
+				sql.append(	"FROM ");
+				sql.append(		"JAVA_SOLALTBIL ");
+
+				preparedStatement = connection.prepareStatement(sql.toString());
+				resultSet = preparedStatement.executeQuery();
+
+				while (resultSet.next()) {
+					result = resultSet.getInt("MAXSEQ");
+				}
+
+				return result;
+				
+			} catch (SQLException sqle) {
+				throw new SQLException(sqle);
+			} 
+		} finally {
+			System.out.println("finalizando metodo: obterMaxSeqSolAltBil().");
+		}
+	}
+	
 }
