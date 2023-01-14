@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import br.fiap.dao.BilheteDAO;
 import br.fiap.dao.SolAltBilDAO;
@@ -48,14 +49,16 @@ public class FormUsuario {
 				case 5:
 					this.solicitarAlteracaoTipoBilhete(cpf);
 					break;
+				case 6: 
+					this.consultarSolAltBilUsu(cpf);
 				default:
 					break;
 				}
 
 			} catch (NumberFormatException e) {
-				showMessageDialog(null, "A opção deve ser um número entre 1 e 6\n" + e);
+				showMessageDialog(null, "A opção deve ser um número entre 1 e 7\n" + e);
 			}
-		} while (opcao != 6);
+		} while (opcao != 7);
 
 	}
 
@@ -159,7 +162,7 @@ public class FormUsuario {
 			String tipo = (String) showInputDialog(null, "O seu tipo de bilhete atual é: " + usuario.getTipo() + "\nDeseja alterar para qual tipo?", "Tipo de bilhete" , 0, null, opcao, opcao[2]);
 			if (tipo != null && tipo.trim() != "") {
 				SolAltBil solicitacaoAlteracao = solAltBilDAO.obterSolAltBilPorCpf(cpf);
-				if (solicitacaoAlteracao != null) {
+				if (solicitacaoAlteracao != null && ( solicitacaoAlteracao.getStatus() != null && solicitacaoAlteracao.getStatus().equalsIgnoreCase("P"))) {
 					String dataSol = String.valueOf(solicitacaoAlteracao.getAnoMes_solicitacao());
 					showMessageDialog(null, "Você já tem uma solicitação em aberto !\nFavor aguardar.\n"
 											+ "\nMês/Ano Solicitação: " + String.valueOf( dataSol.substring(0, 2) + "/" + dataSol.substring(2, 6) )
@@ -186,6 +189,7 @@ public class FormUsuario {
 					solicitacaoAlteracao.setCpf(cpf);
 					solicitacaoAlteracao.setAnoMes_solicitacao(Integer.valueOf(dataSolicitacao.format(formatDateSol)));
 					solicitacaoAlteracao.setTipo_bilhete_alteracao(tipo);
+					solicitacaoAlteracao.setStatus("P");
 
 					if (solicitacaoAlteracao != null) {
 						// solicitar alteração do tipo do bilhete
@@ -199,7 +203,36 @@ public class FormUsuario {
 			}
 		}
 	}
+	
+	public void consultarSolAltBilUsu(String cpf) {
+		SolAltBilDAO solAltBilDAO = new SolAltBilDAO();
+		
+		if (verificaString(cpf)) {
+			String statusEscolhido = showInputDialog("Você deseja visualizar as solicitações com qual status? \nA. Aprovadas\nR. Reprovadas\nP. Pendentes\nT. Todas");
+			if (verificaString(statusEscolhido)) {
+				List<SolAltBil> listSolAltBilUsu = solAltBilDAO.obterListaSolicitacoes(statusEscolhido);
+				if (listSolAltBilUsu != null && !listSolAltBilUsu.isEmpty()) {
+					String solicitacoes = null;
+					for (SolAltBil solicitacao: listSolAltBilUsu) {
+						solicitacoes += solicitacao + "\n";
+					}
+					if (verificaString(solicitacoes)) {
+						showMessageDialog(null, "Suas solicitações '" + statusEscolhido + "' " + solicitacoes);
+					}
+				} else {
+					statusEscolhido = this.switchEscolha(statusEscolhido);
+					showMessageDialog(null, "Nenhuma solicitação com o status " + statusEscolhido + " foi encontrada!");
+				}
+			} else {
+				showMessageDialog(null, "Opção " + statusEscolhido + " é inválida!");
+			}
+		} 
+	}
 
+	private boolean verificaString(String str) {
+		return str !=  null && !str.trim().equalsIgnoreCase("") ? true: false;
+	}
+	
 	public void consularSaldo(String cpf) {
 		BilheteDAO bDAO = new BilheteDAO();
 		BilheteUnico bilheteAtu = bDAO.obterBilhetePorCPF(cpf);
@@ -207,6 +240,26 @@ public class FormUsuario {
 		if(bilheteAtu != null) 
 			showMessageDialog(null, "Seu saldo é de : " + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));
 		
+	}
+	
+	private String switchEscolha(String statusEscolhido) {
+		switch (statusEscolhido) {
+		case "T":
+			statusEscolhido = "TODAS";
+			break;
+		case "P":
+			statusEscolhido = "PENDENTES";
+			break;
+		case "A":
+			statusEscolhido = "APROVADAS";
+			break;
+		case "R":
+			statusEscolhido = "REPROVADAS";
+			break;
+		default:
+			break;
+		}
+		return statusEscolhido;
 	}
 
 	private String gerarMenuUsuario() {
@@ -216,7 +269,8 @@ public class FormUsuario {
 		menu += "3. Consultar Saldo\n";
 		menu += "4. Alterar tipo Bilhete\n";
 		menu += "5. Solicitacar Alteração Tipo Bilhete\n";
-		menu += "6. Sair";
+		menu += "6. Minhas solicitações\n";
+		menu += "7. Sair";
 		return menu;
 	}
 

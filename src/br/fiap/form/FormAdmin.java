@@ -169,9 +169,10 @@ public class FormAdmin {
 		if (opcao < 0 || opcao > 3 ) {
 			showMessageDialog(null, "Opção inválida. Escolha entre 1 e 3.");
 		} else if ( opcao == 1 ) {
-			List<SolAltBil> listSolAltBil = solAltBilDAO.obterListaSolicitacoes();
+			String status = showInputDialog("Informe o status das solicitações que deseja visualizar. \nA. Aprovadas\nR. Reprovadas\nP. Pendentes\nT. Todas");
+			List<SolAltBil> listSolAltBil = solAltBilDAO.obterListaSolicitacoes(status.toUpperCase());
 			if (listSolAltBil != null && !listSolAltBil.isEmpty()) {
-				String solicitacoes = "Lista de solicitações: \n";
+				String solicitacoes = "Lista de solicitações: '" + status + "' \n";
 				for (SolAltBil solicitacao: listSolAltBil) {
 					solicitacoes += solicitacao + "\n";
 				}
@@ -212,14 +213,16 @@ public class FormAdmin {
 			DateTimeFormatter formatDateSol = DateTimeFormatter.ofPattern("ddMMyyyy");
 			
 			if (argEscolha != null && (argEscolha.equalsIgnoreCase("A") || argEscolha.equalsIgnoreCase("R"))) {
-				solAltBilDAO.efetivarSolAltBil(solicitacao.getCpf(), argEscolha, Integer.valueOf(dataSolicitacao.format(formatDateSol)));					
+				solAltBilDAO.efetivarSolAltBil(solicitacao.getCpf(), argEscolha, Integer.valueOf(dataSolicitacao.format(formatDateSol)));						
 			}
 			
 			Usuario usuario = usuarioDAO.obterUsuarioPorCPF(solicitacao.getCpf());
 			if (usuario != null && argEscolha.equals("A")) {
 				usuarioDAO.atualizarTipoBilhete(solicitacao.getCpf(), solicitacao.getTipo_bilhete_alteracao());
 				showMessageDialog(null, "Solicitação aprovada com sucesso! " + "\nNovo tipo de bilhete do usuário: " + solicitacao.getTipo_bilhete_alteracao());
-			} 
+			} else {
+				showMessageDialog(null, "Solicitação de " + usuario.getNome() + " reprovada com suecsso. \nStatus da solicitação: REPROVADA" );
+			}
 			
 		} else {
 			showMessageDialog(null, "ERRO: Solicitação de alteração inválida.");

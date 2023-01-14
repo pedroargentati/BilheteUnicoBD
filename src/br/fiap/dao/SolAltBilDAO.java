@@ -31,10 +31,11 @@ public class SolAltBilDAO {
 				sql.append(		"ID_SOLICITACAO,  ");
 				sql.append(		"CPF, ");
 				sql.append(		"ANOMES_SOLICITACAO, ");
-				sql.append(		"TIPO_BILHETE_ALTERACAO ");
-				sql.append(	"FROM ");
-				sql.append(		"JAVA_SOLALTBIL ");
-				sql.append(	"WHERE ");
+				sql.append(		"TIPO_BILHETE_ALTERACAO, ");
+				sql.append(		"STATUS ");
+				sql.append(	" FROM ");
+				sql.append(		" JAVA_SOLALTBIL ");
+				sql.append(	" WHERE ");
 				sql.append(		"CPF = ?");
 				
 				preparedStatement = connection.prepareStatement(sql.toString());
@@ -47,6 +48,7 @@ public class SolAltBilDAO {
 					result.setCpf					(resultSet.getString("CPF"));
 					result.setAnoMes_solicitacao	(resultSet.getInt("ANOMES_SOLICITACAO"));
 					result.setTipo_bilhete_alteracao(resultSet.getString("TIPO_BILHETE_ALTERACAO"));
+					result.setStatus				(resultSet.getString("STATUS"));
 				}
 				
 			} catch (SQLException e) {
@@ -74,14 +76,16 @@ public class SolAltBilDAO {
 				sql.append(	"(ID_SOLICITACAO,  ");
 				sql.append(	"CPF, ");
 				sql.append(	"ANOMES_SOLICITACAO, ");
-				sql.append(	"TIPO_BILHETE_ALTERACAO ) ");
-				sql.append(		" VALUES(?, ?, ?, ?)");
+				sql.append(	"TIPO_BILHETE_ALTERACAO, ) ");
+				sql.append( "STATUS ");
+				sql.append(		" VALUES(?, ?, ?, ?, ?)");
 				
 				preparedStatement = connection.prepareStatement(sql.toString());
 				preparedStatement.setInt	(1, solAltBil.getId_solicitacao());
 				preparedStatement.setString	(2, solAltBil.getCpf());
 				preparedStatement.setInt	(3, solAltBil.getAnoMes_solicitacao());
 				preparedStatement.setString	(4, solAltBil.getTipo_bilhete_alteracao());
+				preparedStatement.setString	(5, solAltBil.getStatus());
 				preparedStatement.execute();
 				
 			} catch (SQLException e) {
@@ -92,7 +96,7 @@ public class SolAltBilDAO {
 		}
 	}
 	
-	public List<SolAltBil> obterListaSolicitacoes() {
+	public List<SolAltBil> obterListaSolicitacoes(String status) {
 		System.out.println("iniciando método obterListaSolicitacoes.");
 		try {
 
@@ -109,11 +113,21 @@ public class SolAltBilDAO {
 				sql.append(		"ID_SOLICITACAO,  ");
 				sql.append(		"CPF, ");
 				sql.append(		"ANOMES_SOLICITACAO, ");
-				sql.append(		"TIPO_BILHETE_ALTERACAO ");
+				sql.append(		"TIPO_BILHETE_ALTERACAO, ");
+				sql.append(		"STATUS ");
 				sql.append(	"FROM ");
 				sql.append(		"JAVA_SOLALTBIL ");
+				if (!status.toUpperCase().equalsIgnoreCase("T")) {
+					sql.append( "  WHERE ");
+					sql.append( "	STATUS = ?");
+				}
 				
 				preparedStatement = connection.prepareStatement(sql.toString());
+				
+				int idx = 1;
+				if (!status.toUpperCase().equalsIgnoreCase("T")) {
+					preparedStatement.setString	(idx, status);
+				}
 				resultSet = preparedStatement.executeQuery();
 				
 				result = new ArrayList<SolAltBil>();
@@ -123,6 +137,7 @@ public class SolAltBilDAO {
 					vo.setCpf					(resultSet.getString("CPF"));
 					vo.setAnoMes_solicitacao	(resultSet.getInt("ANOMES_SOLICITACAO"));
 					vo.setTipo_bilhete_alteracao(resultSet.getString("TIPO_BILHETE_ALTERACAO"));
+					vo.setStatus				(resultSet.getString("STATUS"));
 					
 					result.add(vo);
 				}

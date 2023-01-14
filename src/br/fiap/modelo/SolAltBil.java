@@ -31,6 +31,10 @@ public class SolAltBil {
 	}
 
 	public Integer getAnoMes_solicitacao() {
+		if (this.anoMes_solicitacao < 6) {
+			// retornar 129999 por default
+			return this.anoMes_solicitacao = 129999;
+		}
 		return anoMes_solicitacao;
 	}
 
@@ -64,10 +68,11 @@ public class SolAltBil {
 
 	@Override
 	public String toString() {
-		String str = 	"\nID Soliticação: " 				+ id_solicitacao 	 + 
-						"\nCPF: " 							+ cpf 				 + 
-						"\nAno/Mês solicitação: " 			+ anoMes_solicitacao + 
-						"\nTipo de Bilhete solicitado: " 	+ tipo_bilhete_alteracao;
+		String str = 	"\nID Soliticação: " 				+ id_solicitacao 		 + 
+						"\nCPF: " 							+ cpf 				 	 + 
+						"\nAno/Mês solicitação: " 			+ anoMes_solicitacao 	 + 
+						"\nTipo de Bilhete solicitado: " 	+ tipo_bilhete_alteracao + 
+						"\nStatus: " 						+ status;
 		return str;
 	}
 
