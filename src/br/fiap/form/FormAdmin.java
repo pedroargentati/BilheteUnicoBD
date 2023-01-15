@@ -55,7 +55,7 @@ public class FormAdmin {
 			} catch (NumberFormatException e) {
 				showMessageDialog(null, "A opção deve ser um número entre 1 e 6\n" + e);
 			}
-		} while (opcao != 6);
+		} while (opcao != 7);
 
 	}
 
@@ -247,7 +247,7 @@ public class FormAdmin {
 		menu += "3. Consultar Bilhete\n";
 		menu += "4. Alterar nome de Usuário\n";
 		menu += "5. Excluir Usuário\n";
-		menu += "6. Menu - Alteração tipo Bilehte\n";
+		menu += "6. Menu - Alteração tipo Bilhete\n";
 		menu += "7. Sair";
 		return menu;
 

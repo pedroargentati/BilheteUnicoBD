@@ -52,14 +52,18 @@ public class FormUsuario {
 					break;
 				case 6: 
 					this.consultarSolAltBilUsu(cpf);
+					break;
+				case 7:
+					this.consultarPerfilUsuario(cpf);
+					break;
 				default:
 					break;
 				}
 
 			} catch (NumberFormatException e) {
-				showMessageDialog(null, "A opção deve ser um número entre 1 e 7\n" + e);
+				showMessageDialog(null, "A opção deve ser um número entre 1 e 8\n" + e);
 			}
-		} while (opcao != 7);
+		} while (opcao != 8);
 
 	}
 
@@ -190,7 +194,7 @@ public class FormUsuario {
 					solicitacaoAlteracao.setCpf(cpf);
 					solicitacaoAlteracao.setAnoMes_solicitacao(Integer.valueOf(dataSolicitacao.format(formatDateSol)));
 					solicitacaoAlteracao.setTipo_bilhete_alteracao(tipo);
-					solicitacaoAlteracao.setStatus("P");
+					solicitacaoAlteracao.setStatus("P"); // pendente
 
 					if (solicitacaoAlteracao != null) {
 						// solicitar alteração do tipo do bilhete
@@ -218,7 +222,7 @@ public class FormUsuario {
 						solicitacoes += solicitacao + "\n";
 					}
 					if (Utils.verificaString(solicitacoes)) {
-						showMessageDialog(null, "Suas solicitações '" + statusEscolhido + "' " + solicitacoes);
+						showMessageDialog(null, "Suas solicitações '" + Utils.switchEscolha(statusEscolhido) + "' " + solicitacoes);
 					}
 				} else {
 					statusEscolhido = Utils.switchEscolha(statusEscolhido);
@@ -228,6 +232,20 @@ public class FormUsuario {
 				showMessageDialog(null, "Opção " + statusEscolhido + " é inválida!");
 			}
 		} 
+	}
+	
+	public void consultarPerfilUsuario(String cpf) {
+		if (Utils.verificaString(cpf)) {
+			UsuarioDAO usuDAO = new UsuarioDAO();
+			BilheteDAO bilheteDAO = new BilheteDAO();
+			
+			Usuario usuario = usuDAO.obterUsuarioPorCPF(cpf);
+			BilheteUnico bilheteUsuario  = bilheteDAO.obterBilhetePorCPF(cpf);
+			
+			if (usuario != null && bilheteUsuario != null) {
+				showMessageDialog(null, "Informações do usuário: " + usuario.getNome() + "\nCPF: " + usuario.getCpf() + "\nTipo: " + usuario.getTipo() + bilheteUsuario);
+			}
+		}
 	}
 
 	public void consularSaldo(String cpf) {
@@ -246,7 +264,8 @@ public class FormUsuario {
 		menu += "4. Alterar tipo Bilhete\n";
 		menu += "5. Solicitacar Alteração Tipo Bilhete\n";
 		menu += "6. Minhas solicitações\n";
-		menu += "7. Sair";
+		menu += "7. Meu perfil\n";
+		menu += "8. Sair";
 		return menu;
 	}
 
