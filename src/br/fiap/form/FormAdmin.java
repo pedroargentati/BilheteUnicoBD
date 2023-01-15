@@ -16,6 +16,7 @@ import br.fiap.dao.UsuarioDAO;
 import br.fiap.modelo.BilheteUnico;
 import br.fiap.modelo.SolAltBil;
 import br.fiap.modelo.Usuario;
+import br.fiap.utils.Utils;
 
 public class FormAdmin {
 	
@@ -74,7 +75,7 @@ public class FormAdmin {
 			nome = showInputDialog("Informe o nome do usuário: ");
 			tipo = (String) showInputDialog(null, "Tipo de Tarifa", "Tipo de Tarifa", 0, null, opcao, opcao[2]);
 
-			double numero = gerarNumeroAleatorio();
+			double numero = Utils.gerarNumeroAleatorio();
 			if (bilheteDao.obterBilhetePorChave(numero)) {
 				showMessageDialog(null, "Número de bilhete já cadastrado. ");
 			} 
@@ -184,18 +185,27 @@ public class FormAdmin {
 			String cpf = showInputDialog("Informe o cpf do usuário que deseja ver a solicitação: ");
 			if ( cpf != null && cpf.trim() != "" ) {
 				SolAltBil solicitacao = solAltBilDAO.obterSolAltBilPorCpf(cpf);
+
 				if (solicitacao != null) {
 					String opcao_efetivacao = null;
 					opcao_efetivacao = showInputDialog("Solicitação para o CPF " + cpf + "\n" + solicitacao + "\n" + "\nO que você deseja?\n\n A. Aprovar\n R. Reprovar\n S. Sair");
+					
 					if (opcao_efetivacao != null & opcao_efetivacao.trim() != "") {
-						if (opcao_efetivacao.equalsIgnoreCase("S")) {
+						switch (opcao_efetivacao) {
+						case "S":
 							showMessageDialog(null, "Tudo bem. Voltando ao menu principal.");
-						} else if (opcao_efetivacao.equalsIgnoreCase("A")) {
+							break;
+						case "A":
 							this.efetivarSolAltBil(solicitacao, "A");
-						} else if (opcao_efetivacao.equalsIgnoreCase("R")) {
+							break;
+						case "R":
 							this.efetivarSolAltBil(solicitacao, "R");
+							break;
+						default:
+							break;
 						}
 					}
+
 				}
 			} else {
 				showMessageDialog(null, "CPF não encontrado em nossa base de dados.");
@@ -229,15 +239,6 @@ public class FormAdmin {
 		}
 	}
 	
-	
-	public double gerarNumeroAleatorio( ) {
-		double numero = 0;
-		
-		Random random = new Random();
-		numero = random.nextInt(100000);
-		
-		return numero;
-	}
 	
  	private String gerarMenuAdmin() {
 		String menu = "Escolha uma operação:\n";

@@ -18,6 +18,7 @@ import br.fiap.modelo.BilheteUnico;
 import br.fiap.modelo.SolAltBil;
 import br.fiap.modelo.TipoUsuario;
 import br.fiap.modelo.Usuario;
+import br.fiap.utils.Utils;
 
 public class FormUsuario {
 
@@ -165,7 +166,7 @@ public class FormUsuario {
 				if (solicitacaoAlteracao != null && ( solicitacaoAlteracao.getStatus() != null && solicitacaoAlteracao.getStatus().equalsIgnoreCase("P"))) {
 					String dataSol = String.valueOf(solicitacaoAlteracao.getAnoMes_solicitacao());
 					showMessageDialog(null, "Você já tem uma solicitação em aberto !\nFavor aguardar.\n"
-											+ "\nMês/Ano Solicitação: " + String.valueOf( dataSol.substring(0, 2) + "/" + dataSol.substring(2, 6) )
+											+ "\nMês/Ano Solicitação: " + String.valueOf( Utils.formatDate(dataSol) )
 											+ "\nTipo alteração solicitada: " + solicitacaoAlteracao.getTipo_bilhete_alteracao());
 				} else {
 					solicitacaoAlteracao = new SolAltBil();
@@ -207,20 +208,20 @@ public class FormUsuario {
 	public void consultarSolAltBilUsu(String cpf) {
 		SolAltBilDAO solAltBilDAO = new SolAltBilDAO();
 		
-		if (verificaString(cpf)) {
+		if (Utils.verificaString(cpf)) {
 			String statusEscolhido = showInputDialog("Você deseja visualizar as solicitações com qual status? \nA. Aprovadas\nR. Reprovadas\nP. Pendentes\nT. Todas");
-			if (verificaString(statusEscolhido)) {
+			if (Utils.verificaString(statusEscolhido)) {
 				List<SolAltBil> listSolAltBilUsu = solAltBilDAO.obterListaSolicitacoes(statusEscolhido);
 				if (listSolAltBilUsu != null && !listSolAltBilUsu.isEmpty()) {
 					String solicitacoes = null;
 					for (SolAltBil solicitacao: listSolAltBilUsu) {
 						solicitacoes += solicitacao + "\n";
 					}
-					if (verificaString(solicitacoes)) {
+					if (Utils.verificaString(solicitacoes)) {
 						showMessageDialog(null, "Suas solicitações '" + statusEscolhido + "' " + solicitacoes);
 					}
 				} else {
-					statusEscolhido = this.switchEscolha(statusEscolhido);
+					statusEscolhido = Utils.switchEscolha(statusEscolhido);
 					showMessageDialog(null, "Nenhuma solicitação com o status " + statusEscolhido + " foi encontrada!");
 				}
 			} else {
@@ -229,37 +230,12 @@ public class FormUsuario {
 		} 
 	}
 
-	private boolean verificaString(String str) {
-		return str !=  null && !str.trim().equalsIgnoreCase("") ? true: false;
-	}
-	
 	public void consularSaldo(String cpf) {
 		BilheteDAO bDAO = new BilheteDAO();
 		BilheteUnico bilheteAtu = bDAO.obterBilhetePorCPF(cpf);
 		
 		if(bilheteAtu != null) 
-			showMessageDialog(null, "Seu saldo é de : " + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));
-		
-	}
-	
-	private String switchEscolha(String statusEscolhido) {
-		switch (statusEscolhido) {
-		case "T":
-			statusEscolhido = "TODAS";
-			break;
-		case "P":
-			statusEscolhido = "PENDENTES";
-			break;
-		case "A":
-			statusEscolhido = "APROVADAS";
-			break;
-		case "R":
-			statusEscolhido = "REPROVADAS";
-			break;
-		default:
-			break;
-		}
-		return statusEscolhido;
+			showMessageDialog(null, "Seu saldo é de : " + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));	
 	}
 
 	private String gerarMenuUsuario() {
