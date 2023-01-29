@@ -56,6 +56,13 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * @author Pedro
+	 * @since 01/2023
+	 * 
+	 * @param date Data à ser formatada
+	 * @return Data formatada: 'DD/MM/YYYY'.
+	 */
 	public static String formatBusinessDate(Date date) {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 		return formatter.format(date);
