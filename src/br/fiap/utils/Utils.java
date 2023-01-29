@@ -61,10 +61,25 @@ public class Utils {
 	 * @since 01/2023
 	 * 
 	 * @param date Data à ser formatada
-	 * @return Data formatada: 'DD/MM/YYYY'.
+	 * @return Data formatada: 'DD/MM/YYYY' ou 'YYYY/MM.
+	 */
+	public static String formatBusinessDate(Date date, String format) {
+		if (!format.equalsIgnoreCase("YYYYMM")) 
+			return null;
+		
+		SimpleDateFormat formatter = new SimpleDateFormat(format);
+		return formatter.format(date);
+	}
+	
+	/**
+	 * @author Pedro
+	 * @since 01/2023
+	 * 
+	 * @param date Data à ser formatada
+	 * @return Data formatada: 'DD/MM/YYYY'
 	 */
 	public static String formatBusinessDate(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat("DD/MM/YYYY");
 		return formatter.format(date);
 	}
 

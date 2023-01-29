@@ -60,6 +60,53 @@ public class SolAltBilDAO {
 		}
 	}
 	
+	public SolAltBil obterSolAltBilPendentesPorCpf(String cpf) {
+		System.out.println("iniciando método obterSolAltBilPendentesPorCpf.");
+		try {
+
+			Connection connection;
+			ResultSet resultSet = null;
+			PreparedStatement preparedStatement = null;
+			SolAltBil result = null;
+			
+			connection = conexao.conectar();
+			StringBuffer sql = new StringBuffer();
+
+			try {
+				sql.append(	"SELECT ");
+				sql.append(		"ID_SOLICITACAO,  ");
+				sql.append(		"CPF, ");
+				sql.append(		"ANOMES_SOLICITACAO, ");
+				sql.append(		"TIPO_BILHETE_ALTERACAO, ");
+				sql.append(		"STATUS ");
+				sql.append(	" FROM ");
+				sql.append(		" JAVA_SOLALTBIL ");
+				sql.append(	" WHERE ");
+				sql.append(		"CPF = ?");
+				sql.append(		"AND STATUS = 'P'");
+				
+				preparedStatement = connection.prepareStatement(sql.toString());
+				preparedStatement.setString(1, cpf);
+				resultSet = preparedStatement.executeQuery();
+				
+				while(resultSet.next()) {
+					result = new SolAltBil();
+					result.setId_solicitacao		(resultSet.getInt("ID_SOLICITACAO"));
+					result.setCpf					(resultSet.getString("CPF"));
+					result.setAnoMes_solicitacao	(resultSet.getInt("ANOMES_SOLICITACAO"));
+					result.setTipo_bilhete_alteracao(resultSet.getString("TIPO_BILHETE_ALTERACAO"));
+					result.setStatus				(resultSet.getString("STATUS"));
+				}
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return result;
+		} finally {
+			System.out.println("finalizando método obterSolAltBilPendentesPorCpf.");
+		}
+	}
+	
 	public void inserirSolAltBil(SolAltBil solAltBil) {
 		System.out.println("iniciando método inserirSolAltBil.");
 		try {
@@ -76,8 +123,8 @@ public class SolAltBilDAO {
 				sql.append(	"(ID_SOLICITACAO,  ");
 				sql.append(	"CPF, ");
 				sql.append(	"ANOMES_SOLICITACAO, ");
-				sql.append(	"TIPO_BILHETE_ALTERACAO, ) ");
-				sql.append( "STATUS ");
+				sql.append(	"TIPO_BILHETE_ALTERACAO, ");
+				sql.append(	"STATUS ) ");
 				sql.append(		" VALUES(?, ?, ?, ?, ?)");
 				
 				preparedStatement = connection.prepareStatement(sql.toString());

@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 
 import br.fiap.dao.BilheteDAO;
 import br.fiap.dao.SolAltBilDAO;
@@ -184,9 +183,9 @@ public class FormAdmin {
 		} else if (opcao == 2) {
 			String cpf = showInputDialog("Informe o cpf do usuário que deseja ver a solicitação: ");
 			if ( cpf != null && cpf.trim() != "" ) {
-				SolAltBil solicitacao = solAltBilDAO.obterSolAltBilPorCpf(cpf);
+				SolAltBil solicitacao = solAltBilDAO.obterSolAltBilPendentesPorCpf(cpf);
 
-				if (solicitacao != null) {
+				if (solicitacao != null && !solicitacao.getStatus().equalsIgnoreCase("R")) {
 					String opcao_efetivacao = null;
 					opcao_efetivacao = showInputDialog("Solicitação para o CPF " + cpf + "\n" + solicitacao + "\n" + "\nO que você deseja?\n\n A. Aprovar\n R. Reprovar\n S. Sair");
 					
@@ -231,7 +230,7 @@ public class FormAdmin {
 				usuarioDAO.atualizarTipoBilhete(solicitacao.getCpf(), solicitacao.getTipo_bilhete_alteracao());
 				showMessageDialog(null, "Solicitação aprovada com sucesso! " + "\nNovo tipo de bilhete do usuário: " + solicitacao.getTipo_bilhete_alteracao());
 			} else {
-				showMessageDialog(null, "Solicitação de " + usuario.getNome() + " reprovada com suecsso. \nStatus da solicitação: REPROVADA" );
+				showMessageDialog(null, "Solicitação de " + usuario.getNome() + " reprovada com sucesso. \nStatus da solicitação: REPROVADA" );
 			}
 			
 		} else {

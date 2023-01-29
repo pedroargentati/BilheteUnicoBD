@@ -179,9 +179,6 @@ public class FormUsuario {
 				} else {
 					solicitacaoAlteracao = new SolAltBil();
 
-					LocalDateTime dataSolicitacao = LocalDateTime.now();
-					DateTimeFormatter formatDateSol = DateTimeFormatter.ofPattern("MMyyyy");
-
 					Integer solAltBilMaxSeq = null;
 					try {
 						solAltBilMaxSeq = solAltBilDAO.obterMaxSeqSolAltBil();
@@ -196,7 +193,7 @@ public class FormUsuario {
 					}
 					
 					solicitacaoAlteracao.setCpf(cpf);
-					solicitacaoAlteracao.setAnoMes_solicitacao(Integer.valueOf(dataSolicitacao.format(formatDateSol)));
+					solicitacaoAlteracao.setAnoMes_solicitacao(Integer.valueOf(Utils.formatBusinessDate(new Date(), "YYYYMM")));
 					solicitacaoAlteracao.setTipo_bilhete_alteracao(tipo);
 					solicitacaoAlteracao.setStatus("P"); // pendente
 
@@ -261,8 +258,8 @@ public class FormUsuario {
 						if (usuDestino != null) {
 							Double valorEnviado = null;
 							valorEnviado = Double.valueOf(showInputDialog("Informe o valor que deseja enviar para o " + usuDestino.getNome() + "\nSaldo atual: R$" + bilheteUsuario.getSaldo()));
-							if (valorEnviado != null && (valorEnviado < 0 || valorEnviado > bilheteUsuario.getSaldo())) {
-								showMessageDialog(null, "Saldo insuficiente!\nSaldo atual: " + bilheteUsuario.getSaldo());
+							if (valorEnviado != null && (valorEnviado <= 0 || valorEnviado > bilheteUsuario.getSaldo())) {
+								showMessageDialog(null, "Saldo insuficiente e/ou inválido!\nSaldo atual: " + bilheteUsuario.getSaldo());
 							} else {
 								String confirmacao = "N";
 								confirmacao = showInputDialog("Você tem certeza que deseja transferir R$" + valorEnviado + " para " + usuDestino.getNome() + " ?");
@@ -271,6 +268,8 @@ public class FormUsuario {
 									this.realizaTransferencia(usuDestino, valorEnviado);
 									
 									Double saldoAtual = this.consultarSaldoUsu(cpf);
+									saldoAtual = saldoAtual == null ? 0.0 : saldoAtual;
+									
 									String msgConfirmacao = "Transferência realizada com sucesso! Informações: "
 															+ "\nData da transferência: " + Utils.formatBusinessDate(new Date()) 
 															+ "\nPara: " + usuDestino.getNome()
