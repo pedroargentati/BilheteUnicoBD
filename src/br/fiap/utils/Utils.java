@@ -1,7 +1,17 @@
 package br.fiap.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
+/**
+ * 
+ * @author Pedro
+ * @since 01/2023
+ * 
+ * @descripiton Classe criada com o intuito de facilitar e agilizar o desenvolvimento dos projetos.
+ * 				Contém diversos métodos de verificação, formatação, tradução, geração de dados e/ou variáveis.
+ */
 public class Utils {
 
 	/**
@@ -44,6 +54,11 @@ public class Utils {
 		} else {
 			return "12/9999";
 		}
+	}
+	
+	public static String formatBusinessDate(Date date) {
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		return formatter.format(date);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 import br.fiap.dao.BilheteDAO;
@@ -56,14 +57,17 @@ public class FormUsuario {
 				case 7:
 					this.consultarPerfilUsuario(cpf);
 					break;
+				case 8:
+					this.transferirValor(cpf);
+					break;
 				default:
 					break;
 				}
 
 			} catch (NumberFormatException e) {
-				showMessageDialog(null, "A opção deve ser um número entre 1 e 8\n" + e);
+				showMessageDialog(null, "A opção deve ser um número entre 1 e 9\n" + e);
 			}
-		} while (opcao != 8);
+		} while (opcao != 9);
 
 	}
 
@@ -80,7 +84,7 @@ public class FormUsuario {
 			valoQueDesejaCarregar += bilheteAtu.getSaldo() ;
 			showMessageDialog(null, "O seu saldo foi atualizado com sucesso!\n Saldo atual: " + valoQueDesejaCarregar);
 		} else {
-			showMessageDialog(null, "O bilhete com CPF " + cpf + " nÃ£o foi encontrado.");
+			showMessageDialog(null, "O bilhete com CPF " + cpf + " não foi encontrado.");
 		}
 
 	}
@@ -231,7 +235,65 @@ public class FormUsuario {
 			} else {
 				showMessageDialog(null, "Opção " + statusEscolhido + " é inválida!");
 			}
-		} 
+		}
+	}
+	
+	/**
+	 * @desctiption Realiza a transferência e contato com o usuário.
+	 * @param cpf CPF do usuário que irá transferir o dinheiro.
+	 */
+	public void transferirValor(String cpf) {
+		if (Utils.verificaString(cpf)) {
+			
+			UsuarioDAO usuDAO = new UsuarioDAO();
+			BilheteDAO bilheteDAO = new BilheteDAO();
+			
+			Usuario usuario = usuDAO.obterUsuarioPorCPF(cpf);
+			BilheteUnico bilheteUsuario  = bilheteDAO.obterBilhetePorCPF(cpf);
+			
+			if (usuario != null && bilheteUsuario != null) {
+				String cpfDestino = showInputDialog("\nInforme o CPF de quem vai receber: ");
+				if (Utils.verificaString(cpfDestino)) {
+					if (cpfDestino.equalsIgnoreCase(cpf)) {
+						showMessageDialog(null, "Você não pode transferir para você mesmo.");
+					} else {
+						Usuario usuDestino = usuDAO.obterUsuarioPorCPF(cpfDestino);
+						if (usuDestino != null) {
+							Double valorEnviado = null;
+							valorEnviado = Double.valueOf(showInputDialog("Informe o valor que deseja enviar para o " + usuDestino.getNome() + "\nSaldo atual: R$" + bilheteUsuario.getSaldo()));
+							if (valorEnviado != null && (valorEnviado < 0 || valorEnviado > bilheteUsuario.getSaldo())) {
+								showMessageDialog(null, "Saldo insuficiente!\nSaldo atual: " + bilheteUsuario.getSaldo());
+							} else {
+								String confirmacao = "N";
+								confirmacao = showInputDialog("Você tem certeza que deseja transferir R$" + valorEnviado + " para " + usuDestino.getNome() + " ?");
+								if (Utils.verificaString(confirmacao) && confirmacao.equalsIgnoreCase("S")) {
+									this.realizaDebito(usuario, valorEnviado);
+									this.realizaTransferencia(usuDestino, valorEnviado);
+									
+									Double saldoAtual = this.consultarSaldoUsu(cpf);
+									String msgConfirmacao = "Transferência realizada com sucesso! Informações: "
+															+ "\nData da transferência: " + Utils.formatBusinessDate(new Date()) 
+															+ "\nPara: " + usuDestino.getNome()
+															+ "\nCPF destino: " + "***.".concat(cpfDestino).concat(".***-**")
+															+ "\nValor: R$" + valorEnviado
+															+ "\n\nSaldo apos transferência : R$ " + saldoAtual;
+									
+									showMessageDialog(null, msgConfirmacao);
+								} else {
+									showMessageDialog(null, "Tudo bem. Operação sendo cancelada.");
+								}
+							}
+						} else {
+							showMessageDialog(null, "Usuario com o cpf " + cpfDestino + " não foi encontrado.");
+						}
+					}
+					
+				} else {
+					showMessageDialog(null, "CPF inválido!");
+				}
+			}
+		}
+			
 	}
 	
 	public void consultarPerfilUsuario(String cpf) {
@@ -248,12 +310,93 @@ public class FormUsuario {
 		}
 	}
 
+	/**
+	 * @description Consulta o saldo de um usuário.
+	 * @param cpf CPF do usuário que deseja consulta o saldo.
+	 * @return String com o saldo atual do usuário formatado.
+	 */
 	public void consularSaldo(String cpf) {
 		BilheteDAO bDAO = new BilheteDAO();
 		BilheteUnico bilheteAtu = bDAO.obterBilhetePorCPF(cpf);
 		
 		if(bilheteAtu != null) 
 			showMessageDialog(null, "Seu saldo é de : " + NumberFormat.getCurrencyInstance().format(bilheteAtu.getSaldo()));	
+	}
+	
+	/**
+	 * @description Realiza a transferência de valores entre as contas.
+	 * @param usuarioDestino Usuário que irá receber o valor.
+	 * @param valor Valor que será acrescentado ou debitádo do usuário.
+	 */
+	protected void realizaTransferencia(Usuario usuarioDestino, Double valor) {
+		BilheteDAO bilheteDAO = new BilheteDAO();
+		
+		BilheteUnico bilheteUsuDestino = bilheteDAO.obterBilhetePorCPF(usuarioDestino.getCpf());
+		if (bilheteUsuDestino != null) {
+			Double saldoAtual = bilheteUsuDestino.getSaldo();
+			Double valorTotal = this.calculaSaldoTransferencia(saldoAtual, valor, "+");
+			if (valorTotal != null) {
+				bilheteDAO.atualizarBilhete(bilheteUsuDestino.getNumero(), usuarioDestino.getCpf(), valorTotal);
+			} else {
+				showInputDialog("Valor à ser enviado é inválido.\nValor: " + valor);
+			}
+			
+		}
+	}
+	
+	/**
+	 * @description Efetiva o débito de saldo entre as contas.
+	 * @param usuarioEnviando Usuário que está enviando o valor.
+	 * @param valorEnviado Valor à ser enviado.
+	 */
+	protected void realizaDebito(Usuario usuarioEnviando, Double valorEnviado) {
+		BilheteDAO bilheteDAO = new BilheteDAO();		
+		BilheteUnico bilheteUsuEnviando = bilheteDAO.obterBilhetePorCPF(usuarioEnviando.getCpf());
+		
+		if (bilheteUsuEnviando != null) {
+			Double saldoAtual = bilheteUsuEnviando.getSaldo();
+			Double saldoAposDebido = this.calculaSaldoTransferencia(saldoAtual, valorEnviado, "-");
+			if ( saldoAposDebido != null ) {
+				bilheteDAO.atualizarBilhete(bilheteUsuEnviando.getNumero(), usuarioEnviando.getCpf(), saldoAposDebido);
+			} else {
+				showInputDialog("Erro ao realizar o débito: R$" + valorEnviado);
+			}
+		}
+		
+	}
+	
+	/**
+	 * @description Realiza o cálculo do saldo do usuário com o valor à ser acrescentado ou debitado.
+	 * @param saldoAtual Saldo atual do usuário.
+	 * @param valorTransferencia Valor à ser transferido.
+	 * @param tipo Tipo de transação: '+' ou '-'.
+	 * @return saldo após o cálculo.
+	 */
+	protected Double calculaSaldoTransferencia(Double saldoAtual, Double valorTransferencia, String tipo) {
+		if (valorTransferencia >= 0) {
+			if (tipo.equalsIgnoreCase("+")) {
+				return saldoAtual + valorTransferencia;				
+			} else {
+				return saldoAtual - valorTransferencia;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @description Realiza a consulta do saldo do usuário.
+	 * @param cpf CPF do usuário que está sendo consultado.
+	 * @return saldo do usuário.
+	 */
+	protected Double consultarSaldoUsu(String cpf) {
+		BilheteDAO bilheteDAO = new BilheteDAO();
+		if (Utils.verificaString(cpf)) {
+			BilheteUnico bilheteUsu = bilheteDAO.obterBilhetePorCPF(cpf);
+			if (bilheteUsu != null) {
+				return bilheteUsu.getSaldo();
+			}
+		}
+		return null;
 	}
 
 	private String gerarMenuUsuario() {
@@ -265,7 +408,8 @@ public class FormUsuario {
 		menu += "5. Solicitacar Alteração Tipo Bilhete\n";
 		menu += "6. Minhas solicitações\n";
 		menu += "7. Meu perfil\n";
-		menu += "8. Sair";
+		menu += "8. Transferir valor\n";
+		menu += "9. Sair";
 		return menu;
 	}
 
