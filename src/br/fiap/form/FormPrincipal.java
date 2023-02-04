@@ -19,7 +19,6 @@ public class FormPrincipal {
 			} else if(uDAO.obterCPFPorChave(opcao)) {
 				new FormUsuario().menuUsuario(opcao);
 			} 
-			
 		} while(!opcao.equalsIgnoreCase("sair"));		
 	}
 	

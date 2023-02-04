@@ -5,6 +5,8 @@ public class Usuario {
 	private String cpf;
 	private String tipo;
 	
+	private Double saldo;
+	
 	public Usuario() {}
 	
 	public Usuario(String nome, String cpf, String tipo) {
@@ -36,5 +38,20 @@ public class Usuario {
 
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
-	}	
+	}
+
+	public Double getSaldo() {
+		return saldo;
+	}
+
+	public void setSaldo(Double saldo) {
+		this.saldo = saldo;
+	}
+	
+	public String toString() {
+		return "\n\n Nome: "  + nome + 
+				"\nCPF: " 	  + cpf  + 
+				"\nTipo: "	  + tipo + 
+				"\nSaldo: R$" + saldo;
+	}
 }

@@ -47,14 +47,17 @@ public class FormAdmin {
 				case 6:
 					this.menuSolAltTipBil();
 					break;
+				case 7:
+					this.obterListaUsuarios();
+					break;
 				default:
 					break;
 				}
 
 			} catch (NumberFormatException e) {
-				showMessageDialog(null, "A opção deve ser um número entre 1 e 6\n" + e);
+				showMessageDialog(null, "A opção deve ser um número entre 1 e 8\n" + e);
 			}
-		} while (opcao != 7);
+		} while (opcao != 8);
 
 	}
 
@@ -76,11 +79,11 @@ public class FormAdmin {
 
 			double numero = Utils.gerarNumeroAleatorio();
 			if (bilheteDao.obterBilhetePorChave(numero)) {
-				showMessageDialog(null, "Número de bilhete já cadastrado. ");
+				numero = Utils.gerarNumeroAleatorio() + 1;
 			} 
 			
 			usuarioDAO.inserirUsuario(nome, cpf, tipo);
-			bilheteDao.inserirBilhete(numero, cpf, DEFAULT_BALANCE);
+			bilheteDao.inserirBilhete(numero, cpf, DEFAULT_BALANCE /* 0,0 */);
 			
 			showMessageDialog(null, "Usuário criado\nBilhete único gerado! ");
 		}
@@ -101,11 +104,11 @@ public class FormAdmin {
 			UsuarioDAO usuDAO = new UsuarioDAO();
 			String cpf = showInputDialog("Informe o CPF que deseja consultar: ");
 
-			BilheteUnico cpfConsulado = bilheteDao.obterBilhetePorCPF(cpf);
+			BilheteUnico cpfConsultado = bilheteDao.obterBilhetePorCPF(cpf);
 			Usuario usu = usuDAO.obterUsuarioPorCPF(cpf);
 			
-			if (cpfConsulado != null && usu != null) {
-				showMessageDialog(null, "Nome: " + usu.getNome() + "\n" + cpfConsulado );
+			if (cpfConsultado != null && usu != null) {
+				showMessageDialog(null, "Nome: " + usu.getNome() + "\n" + cpfConsultado );
 			} else {
 				showMessageDialog(null, "O CPF " + cpf + " não foi encontrado em nossa base de dados.");
 			}
@@ -120,10 +123,10 @@ public class FormAdmin {
 		String cpf = showInputDialog("Informe o CPF do usuário que deseja alterar o nome: ");
 		Usuario usuPesquisa = uDAO.obterUsuarioPorCPF(cpf);
 		
-		if(uDAO.obterUsuarioPorCPF(cpf).getCpf() != null) {
-			String novoNome = showInputDialog("Informe o novo nome que deseja inserir: ");
+		if(usuPesquisa != null) {
+			String novoNome = showInputDialog("Informe o novo nome que deseja inserir:\nNome atual: " + usuPesquisa.getNome());
 			uDAO.atualizarNomeUsuario(cpf, novoNome);
-			showMessageDialog(null, "Nome atualizado com sucesso!\nNome antigo: " + usuPesquisa.getNome() + "\nNome novo: " + novoNome);
+			showMessageDialog(null, "Nome atualizado com sucesso!\n*Nome antigo: " + usuPesquisa.getNome() + "\n*Nome novo: " + novoNome);
 		} else {
 			showMessageDialog(null, "Usuário com o CPF " + cpf + " não econtrado em nossa base de dados.");
 		}
@@ -166,7 +169,7 @@ public class FormAdmin {
 		
 		SolAltBilDAO solAltBilDAO = new SolAltBilDAO();
 		
-		if (opcao < 0 || opcao > 3 ) {
+		if (opcao <= 0 || opcao > 3 ) {
 			showMessageDialog(null, "Opção inválida. Escolha entre 1 e 3.");
 		} else if ( opcao == 1 ) {
 			String status = showInputDialog("Informe o status das solicitações que deseja visualizar. \nA. Aprovadas\nR. Reprovadas\nP. Pendentes\nT. Todas");
@@ -237,8 +240,33 @@ public class FormAdmin {
 			showMessageDialog(null, "ERRO: Solicitação de alteração inválida.");
 		}
 	}
-	
-	
+
+	private void obterListaUsuarios() throws SQLException {
+		String menu = "Listar usuários:\n1. Normais\n2. Estudantes\n3. Professores\n4. Todos\n5. Sair";
+		Integer escolha = 0;
+		do {
+			escolha = Integer.valueOf(showInputDialog(menu));
+			if (escolha == null || (escolha.intValue() <= 0 || escolha.intValue() > 5)) {
+				showMessageDialog(null, "Escolha uma opção entre 1 e 5!");
+			} else {
+				if (escolha != 5) {
+					List<Usuario> listUsuarios = new UsuarioDAO().obterListUsuario(escolha);
+
+					if (listUsuarios != null && !listUsuarios.isEmpty()) {
+						String usuarios = "Lista de usuários:";
+						for (Usuario usuario : listUsuarios) {
+							usuarios += usuario;
+						}
+						showMessageDialog(null, usuarios);
+					} else {
+						showMessageDialog(null, "ERRO! Nenhum usuário for encontrado em nossa base de dados.");
+					}
+				}
+
+			}
+		} while (escolha != 5);
+	}
+
  	private String gerarMenuAdmin() {
 		String menu = "Escolha uma operação:\n";
 		menu += "1. Emitir Bilhete\n";
@@ -247,7 +275,8 @@ public class FormAdmin {
 		menu += "4. Alterar nome de Usuário\n";
 		menu += "5. Excluir Usuário\n";
 		menu += "6. Menu - Alteração tipo Bilhete\n";
-		menu += "7. Sair";
+		menu += "7. Listar usuários\n";
+		menu += "8. Sair";
 		return menu;
 
 	}
