@@ -218,7 +218,9 @@ public class FormUsuario {
 				if (listSolAltBilUsu != null && !listSolAltBilUsu.isEmpty()) {
 					String solicitacoes = null;
 					for (SolAltBil solicitacao: listSolAltBilUsu) {
-						solicitacoes += solicitacao + "\n";
+						if (solicitacao.getCpf().equalsIgnoreCase(cpf)) {
+							solicitacoes += solicitacao + "\n";							
+						}
 					}
 					if (Utils.verificaString(solicitacoes)) {
 						showMessageDialog(null, "Suas solicitações '" + Utils.switchEscolha(statusEscolhido) + "' " + solicitacoes);

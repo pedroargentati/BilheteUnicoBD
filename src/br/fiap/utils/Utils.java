@@ -50,7 +50,7 @@ public class Utils {
 	 */
 	public static String formatDate(String date) {
 		if (date.length() == 6) {
-			return date.substring(0, 2) + "/".concat(date.substring(2, 6));
+			return date.substring(5, 6) + "/".concat(date.substring(0, 2));
 		} else {
 			return "12/9999";
 		}
